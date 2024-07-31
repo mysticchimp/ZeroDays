@@ -1,0 +1,110 @@
+import pygame
+import random
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+width, height = 1024, 768
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Matrix Waterfall Effect")
+
+# Define colors
+black = (0, 0, 0)
+green = (0, 255, 0)
+red = (255, 0, 0)
+blue = (0, 0, 255)
+yellow = (255, 255, 0)
+white = (255, 255, 255)
+gray = (169, 169, 169)
+
+# Initial text color
+text_color = green
+
+# Define font
+font_size = 20
+# Make sure you have a font that supports Japanese characters, e.g., "NotoSansCJK-Regular.ttc"
+font = pygame.font.Font("NotoSansCJK-Regular.ttc", font_size)
+
+# Create a list of Japanese characters, special characters, and ASCII characters
+japanese_chars = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン漢字"
+special_chars = "!@#$%^&*()_+-=[]{}|;':\",.<>?/`~"
+ascii_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+# Combine all character sets into one list
+mixed_chars = japanese_chars + special_chars + ascii_chars
+
+# Calculate the number of columns based on screen width and font size
+columns = width // font_size
+drops = [0] * columns
+
+# Initial density
+density = 0.975
+
+# Volume and speed settings
+volume = 0.5  # Placeholder for volume control
+speed = 15  # Initial speed
+
+def draw_matrix():
+    screen.fill(black)
+    for i in range(len(drops)):
+        char = random.choice(mixed_chars)
+        char_surface = font.render(char, True, text_color)
+        screen.blit(char_surface, (i * font_size, drops[i] * font_size))
+
+        # Randomly reset the drop to the top
+        if drops[i] * font_size > height or random.random() > density:
+            drops[i] = 0
+        drops[i] += 1
+
+def draw_slider(slider_x, slider_y, slider_width, slider_height, value, min_val, max_val):
+    pygame.draw.rect(screen, gray, (slider_x, slider_y, slider_width, slider_height))
+    handle_x = slider_x + (value - min_val) / (max_val - min_val) * slider_width
+    pygame.draw.rect(screen, white, (handle_x - 5, slider_y - 5, 10, slider_height + 10))
+
+# Main loop
+running = True
+clock = pygame.time.Clock()
+
+# Slider positions and dimensions
+volume_slider_x, volume_slider_y = 50, height - 50
+speed_slider_x, speed_slider_y = 300, height - 50
+slider_width, slider_height = 200, 10
+min_val, max_val = 0, 1  # For volume
+min_speed, max_speed = 5, 30  # For speed
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_g:
+                text_color = green
+            elif event.key == pygame.K_r:
+                text_color = red
+            elif event.key == pygame.K_b:
+                text_color = blue
+            elif event.key == pygame.K_y:
+                text_color = yellow
+            elif event.key == pygame.K_w:
+                text_color = white
+            elif pygame.K_1 <= event.key <= pygame.K_9:
+                # Adjust density based on number key pressed (1 to 9)
+                density = 1.0 - (event.key - pygame.K_0) * 0.1
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Left mouse button
+                mouse_x, mouse_y = event.pos
+                if volume_slider_x <= mouse_x <= volume_slider_x + slider_width and volume_slider_y - 5 <= mouse_y <= volume_slider_y + slider_height + 5:
+                    volume = (mouse_x - volume_slider_x) / slider_width
+                elif speed_slider_x <= mouse_x <= speed_slider_x + slider_width and speed_slider_y - 5 <= mouse_y <= speed_slider_y + slider_height + 5:
+                    speed = min_speed + (mouse_x - speed_slider_x) / slider_width * (max_speed - min_speed)
+
+    draw_matrix()
+    draw_slider(volume_slider_x, volume_slider_y, slider_width, slider_height, volume, min_val, max_val)
+    draw_slider(speed_slider_x, speed_slider_y, slider_width, slider_height, speed, min_speed, max_speed)
+    pygame.display.flip()
+    clock.tick(speed)  # Adjust frame rate based on speed slider
+
+pygame.quit()
+sys.exit()
