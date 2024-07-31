@@ -1,0 +1,78 @@
+import pygame
+import random
+import sys
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+width, height = 1024, 768
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Matrix Waterfall Effect")
+
+# Define colors
+black = (0, 0, 0)
+green = (0, 255, 0)
+red = (255, 0, 0)
+blue = (0, 0, 255)
+yellow = (255, 255, 0)
+white = (255, 255, 255)
+
+# Initial text color
+text_color = green
+
+# Define font
+font_size = 20
+font = pygame.font.SysFont("monospace", font_size, bold=True)
+
+# Create a list of ASCII characters
+ascii_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+# Calculate the number of columns based on screen width and font size
+columns = width // font_size
+drops = [0] * columns
+
+# Initial density
+density = 0.975
+
+def draw_matrix():
+    screen.fill(black)
+    for i in range(len(drops)):
+        char = random.choice(ascii_chars)
+        char_surface = font.render(char, True, text_color)
+        screen.blit(char_surface, (i * font_size, drops[i] * font_size))
+
+        # Randomly reset the drop to the top
+        if drops[i] * font_size > height or random.random() > density:
+            drops[i] = 0
+        drops[i] += 1
+
+# Main loop
+running = True
+clock = pygame.time.Clock()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_g:
+                text_color = green
+            elif event.key == pygame.K_r:
+                text_color = red
+            elif event.key == pygame.K_b:
+                text_color = blue
+            elif event.key == pygame.K_y:
+                text_color = yellow
+            elif event.key == pygame.K_w:
+                text_color = white
+            elif pygame.K_1 <= event.key <= pygame.K_9:
+                # Adjust density based on number key pressed (1 to 9)
+                density = 1.0 - (event.key - pygame.K_0) * 0.1
+
+    draw_matrix()
+    pygame.display.flip()
+    clock.tick(15)  # Lower frame rate for slower effect
+
+pygame.quit()
+sys.exit()
