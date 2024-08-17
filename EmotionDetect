@@ -1,0 +1,66 @@
+import cv2
+from deepface import DeepFace
+import json
+from collections import Counter
+
+# Load the pre-trained model
+model = DeepFace.build_model("Emotion")
+
+# Initialize the video capture device
+cap = cv2.VideoCapture(0)
+
+# Initialize a list to store the emotions
+emotions_recorded = []
+
+while True:
+    # Read a frame from the video capture device
+    ret, frame = cap.read()
+
+    # Detect faces in the frame
+    faces = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml').detectMultiScale(frame)
+
+    # Loop through the detected faces
+    for (x, y, w, h) in faces:
+        # Extract the face ROI
+        face_roi = frame[y:y+h, x:x+w]
+
+        # Analyze the face ROI using the DeepFace model
+        result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
+
+        # Check if the result is a list
+        if isinstance(result, list):
+            # Access the dominant_emotion key from the first element of the list
+            dominant_emotion = result[0]['dominant_emotion']
+        else:
+            # Access the dominant_emotion key directly
+            dominant_emotion = result['dominant_emotion']
+
+        # Store the dominant emotion
+        emotions_recorded.append(dominant_emotion)
+
+        # Draw a rectangle around the face and display the dominant emotion
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.putText(frame, dominant_emotion, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    # Display the frame
+    cv2.imshow('Frame', frame)
+
+    # Exit on key press
+    if cv2.waitKey(1) & 0xFF == 27:  # Escape key
+        break
+
+# After exit, save the recorded emotions to a text file
+with open('emotions_recorded.txt', 'w') as f:
+    json.dump(emotions_recorded, f)
+
+# Analyze the recorded emotions
+emotion_count = Counter(emotions_recorded)
+most_common_emotion = emotion_count.most_common(1)[0][0] if emotion_count else "No emotions detected"
+
+# Print a summary/analysis of the emotions
+print(f"Summary of emotions recorded: {emotion_count}")
+print(f"The most common emotion detected was: {most_common_emotion}")
+
+# Release the capture and close windows
+cap.release()
+cv2.destroyAllWindows()
