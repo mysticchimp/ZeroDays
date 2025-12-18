@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gmail Trust Lens</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>Gmail Trust Lens</h1>
+  </header>
+
+  <section class="controls">
+    <button id="extract-thread">Extract thread</button>
+    <button id="analyze-thread">Analyze</button>
+  </section>
+
+  <section class="thread-section">
+    <label for="thread-text">Thread text</label>
+    <textarea id="thread-text" rows="8" readonly placeholder="Extracted Gmail thread will appear here"></textarea>
+    <div id="status" role="status"></div>
+  </section>
+
+  <section class="results" aria-live="polite">
+    <h2>Analysis results</h2>
+    <div class="result-item">
+      <span class="label">Intent:</span>
+      <span id="intent" class="value">—</span>
+    </div>
+    <div class="result-item">
+      <span class="label">Risk score:</span>
+      <span id="risk-score" class="value">—</span>
+    </div>
+    <div class="result-item">
+      <span class="label">Confidence:</span>
+      <span id="confidence" class="value">—</span>
+    </div>
+    <div class="result-item">
+      <span class="label">Risk factors:</span>
+      <ul id="risk-factors" class="list"></ul>
+    </div>
+    <div class="result-item">
+      <span class="label">Recommended actions:</span>
+      <ul id="recommended-actions" class="list"></ul>
+    </div>
+    <div class="result-item safe-reply">
+      <label for="safe-reply">Safe reply</label>
+      <div class="safe-reply-controls">
+        <textarea id="safe-reply" rows="4" readonly></textarea>
+        <button id="copy-safe-reply">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

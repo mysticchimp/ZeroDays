@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail Trust Lens",
+  "version": "1.0.0",
+  "description": "Analyze Gmail threads for intent and risk.",
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "host_permissions": ["https://mail.google.com/*", "http://localhost:8787/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Gmail Trust Lens"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content_gmail.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
